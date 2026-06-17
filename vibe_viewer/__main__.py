@@ -216,7 +216,7 @@ class VibeHandler(SimpleHTTPRequestHandler):
         """Serve the main HTML page"""
         # Get the absolute path to the template
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        html_path = os.path.join(script_dir, '..', 'templates', 'index.html')
+        html_path = os.path.join(script_dir, 'templates', 'index.html')
         
         if os.path.exists(html_path):
             with open(html_path, 'r', encoding='utf-8') as f:

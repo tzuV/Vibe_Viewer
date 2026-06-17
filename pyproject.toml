@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vibe-viewer"
+version = "0.1.0"
+description = "Web viewer for Mistral Vibe CLI conversations"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Jakob"}
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+[project.urls]
+Homepage = "https://github.com/tzuV/Vibe_Viewer"
+Repository = "https://github.com/tzuV/Vibe_Viewer.git"
+
+[project.scripts]
+vibe-viewer = "vibe_viewer.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["vibe_viewer*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.html", "*.css", "*.js"]
+"vibe_viewer" = ["templates/*"]
