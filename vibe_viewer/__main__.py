@@ -25,6 +25,7 @@ import argparse
 import webbrowser
 from pathlib import Path
 from http.server import HTTPServer, SimpleHTTPRequestHandler
+from urllib.parse import parse_qs, urlparse
 
 # Default configuration
 DEFAULT_PORT = 5000
@@ -89,6 +90,17 @@ class VibeSession:
             }
             formatted.append(formatted_msg)
         return formatted
+
+    def count_tokens(self):
+        """Count estimated tokens in all messages. ponytail: word split estimate, use tiktoken if accuracy matters."""
+        total = 0
+        for msg in self.messages:
+            content = msg.get('content', '')
+            reasoning = msg.get('reasoning_content', '')
+            # Simple word-based estimate: split on whitespace, filter empty
+            total += len(content.split())
+            total += len(reasoning.split())
+        return total
 
 
 class SessionManager:
@@ -192,6 +204,24 @@ class SessionManager:
         
         return self.get_session(session_id)
 
+    def rename_session(self, session_id, new_title):
+        """Rename a session by updating its title in meta.json"""
+        session = self.get_session(session_id)
+        if not session:
+            return False
+        
+        session.meta['title'] = new_title
+        meta_path = os.path.join(session.path, 'meta.json')
+        try:
+            with open(meta_path, 'w', encoding='utf-8') as f:
+                json.dump(session.meta, f, indent=2, ensure_ascii=False)
+            # Clear cache to force reload
+            if session_id in self.sessions:
+                del self.sessions[session_id]
+            return True
+        except Exception:
+            return False
+
 
 class VibeHandler(SimpleHTTPRequestHandler):
     """HTTP request handler for the web viewer"""
@@ -258,6 +288,10 @@ class VibeHandler(SimpleHTTPRequestHandler):
             self._api_refresh_sessions()
         elif self.path == '/api/refresh_all':
             self._api_refresh_all()
+        elif self.path == '/api/token_stats':
+            self._api_token_stats()
+        elif self.path.startswith('/api/session/rename'):
+            self._api_rename_session()
         else:
             self.send_error(404)
     
@@ -395,6 +429,93 @@ class VibeHandler(SimpleHTTPRequestHandler):
             self.wfile.write(response.encode('utf-8'))
         except Exception as e:
             self.send_error(500, f"Error refreshing sessions: {str(e)}")
+
+    def _api_token_stats(self):
+        """Return token statistics for all sessions"""
+        try:
+            sessions_list = self.session_manager.list_sessions(force_refresh=True)
+            stats = []
+            total_tokens = 0
+            
+            for session_info in sessions_list:
+                session = self.session_manager.get_session(session_info['id'])
+                if session:
+                    token_count = session.count_tokens()
+                    total_tokens += token_count
+                    stats.append({
+                        'session_id': session.id,
+                        'title': session.meta.get('title', session.id),
+                        'token_count': token_count,
+                        'message_count': len(session.messages)
+                    })
+            
+            response = json.dumps({
+                'sessions': stats,
+                'total_tokens': total_tokens,
+                'total_sessions': len(stats)
+            })
+            
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Content-Length', len(response.encode('utf-8')))
+            self.end_headers()
+            self.wfile.write(response.encode('utf-8'))
+        except Exception as e:
+            self.send_error(500, f"Error getting token stats: {str(e)}")
+
+    def _api_rename_session(self):
+        """Rename a session"""
+        try:
+            # Parse session_id and new_title from path: /api/session/rename/{session_id}?title=new_title
+            parts = self.path.split('/')
+            if len(parts) < 5:
+                self.send_error(400, "Invalid request")
+                return
+            
+            session_id = parts[4]
+            
+            # Get new title from query params
+            parsed = urlparse(self.path)
+            params = parse_qs(parsed.query)
+            new_title = params.get('title', [''])[0]
+            
+            if not new_title:
+                # Try to get from request body for POST
+                content_length = int(self.headers.get('Content-Length', 0))
+                if content_length > 0:
+                    body = self.rfile.read(content_length).decode('utf-8')
+                    body_params = parse_qs(body)
+                    new_title = body_params.get('title', [''])[0]
+            
+            if not new_title:
+                self.send_error(400, "Missing title parameter")
+                return
+            
+            success = self.session_manager.rename_session(session_id, new_title)
+            
+            if success:
+                # Force refresh sessions list
+                sessions = self.session_manager.list_sessions(force_refresh=True)
+                response = json.dumps({
+                    'success': True,
+                    'session_id': session_id,
+                    'new_title': new_title,
+                    'sessions': sessions
+                })
+                self.send_response(200)
+            else:
+                response = json.dumps({
+                    'success': False,
+                    'error': 'Session not found or could not rename'
+                })
+                self.send_response(404)
+            
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Content-Length', len(response.encode('utf-8')))
+            self.end_headers()
+            self.wfile.write(response.encode('utf-8'))
+        except Exception as e:
+            self.send_error(500, f"Error renaming session: {str(e)}")
 
 
 def open_browser(port):
