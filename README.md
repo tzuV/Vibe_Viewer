@@ -16,11 +16,11 @@ A lightweight web viewer for Mistral Vibe CLI conversations. View your chat hist
 - **Responsive Design**: Works on desktop and mobile devices
 - **Minimal Setup**: Single command to start, no configuration required
 
-## Screenshot
+## Interface
 
 This is how it looks like:
 
-![Vibe Viewer Interface](img/interface.jpg)
+<img src="img/interface.jpg" alt="Vibe Viewer Interface" width="600"/>
 
 ## Installation
 
