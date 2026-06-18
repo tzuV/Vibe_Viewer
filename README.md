@@ -1,4 +1,6 @@
-# vibe-viewer
+# V_V
+
+### vibe-viewer
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![MIT License](https://img.shields.io/badge/license-MIT-green.svg)](https://opensource.org/licenses/MIT)
@@ -13,6 +15,12 @@ A lightweight web viewer for Mistral Vibe CLI conversations. View your chat hist
 - **Dark/Light Theme**: Toggle between themes for comfortable viewing
 - **Responsive Design**: Works on desktop and mobile devices
 - **Minimal Setup**: Single command to start, no configuration required
+
+## Screenshot
+
+This is how it looks like:
+
+![Vibe Viewer Interface](img/interface.jpg)
 
 ## Installation
 
