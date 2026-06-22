@@ -36,17 +36,6 @@ pip install vibe-viewer
 pip install git+https://github.com/tzuV/Vibe_Viewer.git
 ```
 
-### Development (editable mode)
-
-```bash
-# Clone the repository
-git clone https://github.com/tzuV/Vibe_Viewer.git
-cd Vibe_Viewer
-
-# Install in development mode
-pip install -e .
-```
-
 ## Usage
 
 ### Start the viewer
@@ -121,6 +110,18 @@ vibe-viewer/
 
 - Python 3.8 or higher
 - Mistral Vibe CLI (for the conversation data)
+
+### Development (editable mode)
+
+```bash
+# Clone the repository
+git clone https://github.com/tzuV/Vibe_Viewer.git
+cd Vibe_Viewer
+
+# Install in development mode
+pip install -e .
+```
+
 
 ## Contributing
 
