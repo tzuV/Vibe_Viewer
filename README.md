@@ -24,12 +24,6 @@ A lightweight web viewer for Mistral Vibe CLI conversations. View your chat hist
 
 ## Installation
 
-### From PyPI (coming soon)
-
-```bash
-pip install vibe-viewer
-```
-
 ### From GitHub
 
 ```bash
@@ -112,15 +106,6 @@ vibe-viewer/
 - Mistral Vibe CLI (for the conversation data)
 
 ### Development (editable mode)
-
-```bash
-# Clone the repository
-git clone https://github.com/tzuV/Vibe_Viewer.git
-cd Vibe_Viewer
-
-# Install in development mode
-pip install -e .
-```
 
 
 ## Contributing
